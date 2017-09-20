@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:security="http://www.springframework.org/schema/security"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:secruity="http://www.springframework.org/schema/security"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+          http://www.springframework.org/schema/security
+          http://www.springframework.org/schema/security/spring-security-3.2.xsd
+          http://www.springframework.org/schema/context
+          http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<bean id="passwordEncoder" class="com.eastrobot.robotdev.security.PasswordEncoder"></bean>
+	
+	<security:http auto-config='true'>
+		<security:intercept-url pattern="/home.do" access="ROLE_ADMIN"/>
+		<security:http-basic/>
+	</security:http>
+
+	<!-- 配置认证管理器 
+		
+	-->
+	<security:authentication-manager alias="authenticationManager">
+		<!-- 
+			配置默认用户，用户名：admin 密码：123456 拥有权限：ROLE_USER 
+			<security:authentication-provider>
+			<security:user-service>
+				<security:user name="admin" password="123456" authorities="ROLE_ADMIN,ROLE_USER"/>
+			</security:user-service>
+		</security:authentication-provider>
+		 -->
+		 
+		 <!-- 
+		 	添加验证的数据源
+		  -->
+		<security:authentication-provider>
+			<security:jdbc-user-service 
+				data-source-ref="dataSource" 
+				users-by-username-query="select USERNAME, PASSWORD, 1 from AUTH_USER where USERNAME=?"
+				authorities-by-username-query="select USERNAME, 'ROLE_ADMIN' from AUTH_USER where USERNAME=?"
+			/>
+			<security:password-encoder ref="passwordEncoder">
+				<security:salt-source system-wide="system"/>
+			</security:password-encoder>
+			
+		</security:authentication-provider>
+	</security:authentication-manager>
+</beans>

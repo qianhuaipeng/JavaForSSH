@@ -1,0 +1,30 @@
+/*------------重写------*/
+/* default/images/combo_arrow_updown.png */
+.combo-arrow {
+  width: 18px;
+  height: 26px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: top;
+  cursor: pointer;
+  float:right;
+/*border-left:1px solid #ddd;*/
+  background: #fff url(default/images/combo_arrow_updown.png) no-repeat -5px -3px;
+}
+.combo{
+  border: none;
+  margin-top:0;
+  padding-left:10px;
+  width:155px!important;
+  height:26px!important;
+}
+.combo-text {
+  text-align: left;
+   background:white;
+}
+
+.combobox-item {
+  font-size: 12px;
+  padding: 5px 0 5px 10px;
+  cursor: pointer;
+}

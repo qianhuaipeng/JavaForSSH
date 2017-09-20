@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+	default-lazy-init="true">
+
+	<!-- 设置启动的定时bean -->
+	<bean name="quartzScheduler" lazy-init="false" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="doCreateTable"/>
+				<ref bean="doReadLog"/>
+				<ref bean="doCreateLog"/>
+			</list>
+		</property>
+		<property name="configLocation" value="classpath:quartz/quartz.properties" />
+	</bean>
+	
+	<!-- 每月1日 0 点创建  -->
+	<bean id="doCreateTable" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject" ref="timerService"></property>
+				<property name="targetMethod" value="createTable"></property>
+				<property name="concurrent" value="false"></property>
+			</bean>
+		</property>
+		<!-- 每月1号0点执行 -->
+		<property name="cronExpression" value="0 0 0 1 * ?"></property>
+		<!-- 每月的最后一天的01：15触发
+		<property name="cronExpression" value="0 15 01 L * ?"></property>-->
+		<!-- 方便测试，这里设为5分钟更新一次
+		<property name="cronExpression" value="0 */1 * * * ?"></property>-->
+	</bean>
+
+	<!-- 从文件读取日志并插入数据库  -->
+	<bean id="doReadLog" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject" ref="timerService"></property>
+				<property name="targetMethod" value="read"></property>
+				<property name="concurrent" value="false"></property>
+			</bean>
+		</property>
+		<property name="cronExpression" value="30 */2 * * * ?"></property>
+	</bean>
+
+	<!-- 生成log文件  -->
+	<bean id="doCreateLog" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject" ref="timerService"></property>
+				<property name="targetMethod" value="create"></property>
+				<property name="concurrent" value="false"></property>
+			</bean>
+		</property>
+		<!-- 每天凌晨0点执行 -->
+		<property name="cronExpression" value="0 0 0 * * ?"></property>
+	</bean>
+</beans>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+	default-lazy-init="true">
+
+	<!-- 设置启动的定时bean -->
+	<bean name="quartzScheduler" lazy-init="false" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="doMonitorCpu"/>
+				<ref bean="doMonitorFile"/>
+				<ref bean="doMonitorMemory"/>
+				<ref bean="doMonitorProperty"/>
+			</list>
+		</property>
+		<property name="configLocation" value="classpath:quartz/quartz.properties" />
+	</bean>
+	
+	<!-- cpu监控-->
+	<bean id="doMonitorCpu" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject" ref="monitorService"></property>
+				<property name="targetMethod" value="cpu"></property>
+				<property name="concurrent" value="false"></property>
+			</bean>
+		</property>
+		<!-- 每10秒钟监控一次 -->
+		<property name="cronExpression" value="0/10 * * * * ?"></property>
+	</bean>
+	
+	
+	<!-- 磁盘监控-->
+	<bean id="doMonitorFile" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject" ref="monitorService"></property>
+				<property name="targetMethod" value="file"></property>
+				<property name="concurrent" value="false"></property>
+			</bean>
+		</property>
+		<!-- 每10分钟监控一次 -->
+		<property name="cronExpression" value="0 0/10 * * * ?"></property>
+	</bean>
+	
+		
+	<!--内存监控-->
+	<bean id="doMonitorMemory" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject" ref="monitorService"></property>
+				<property name="targetMethod" value="memory"></property>
+				<property name="concurrent" value="false"></property>
+			</bean>
+		</property>
+		<!-- 每10秒钟监控一次 -->
+		<property name="cronExpression" value="0/10 * * * * ?"></property>
+	</bean>
+		
+	<!--JVM监控-->
+	<bean id="doMonitorProperty" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+				<property name="targetObject" ref="monitorService"></property>
+				<property name="targetMethod" value="property"></property>
+				<property name="concurrent" value="false"></property>
+			</bean>
+		</property>
+		<!-- 每5分钟监控一次 -->
+		<property name="cronExpression" value="0 0/5 * * * ?"></property>
+	</bean>
+	
+</beans>

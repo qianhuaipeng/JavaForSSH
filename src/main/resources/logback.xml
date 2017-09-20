@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 日志配置 -->
+<configuration>
+	<!---->
+	<property name="log.dir" value="${webAppRoot}/WEB-INF/logs/" />
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<encoding>UTF-8</encoding>
+		<encoder>
+	      	<pattern>%d[%t][%level][%L]-%logger{10}-%msg%n</pattern>
+	  	</encoder>
+	</appender>
+
+	<!--<appender name="callLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.dir}/call.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.dir}/call.log.%d{yyyy-MM-dd}</fileNamePattern>
+			<maxHistory>300</maxHistory>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>%date{yyyy-MM-dd HH:mm:ss.SSS}|%msg%n</Pattern>
+		</layout>
+	</appender>
+
+	<logger name="callLog" level="INFO" additivity="false">
+		<appender-ref ref="callLog" />
+	</logger>-->
+
+	<root>
+		<level value="info" />
+		<appender-ref ref="stdout"/>
+		<!-- 
+		<appender-ref ref="FILE"/>
+		 -->
+	</root>
+	
+</configuration>
+

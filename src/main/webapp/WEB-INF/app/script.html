@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="headerFragment">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta http-equiv="expires" content="7">
+    <meta http-equiv="Cache-Control" max-age="7200">
+    <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}"/>
+    <title th:text="${title}"></title>
+	<th:block th:include="script :: resFragment_debug"/>
+	<script type="text/javascript">
+        $(function () {
+            var _beginTime = (new Date()).getTime();
+            $(window).unload(function () {
+                var _endTime = (new Date()).getTime();
+                var _interval = _endTime - _beginTime;
+                var _url = location.href;
+
+                var _param = {
+                    interval: _interval,
+                    url: _url
+                }
+            });
+
+            var userAgent = navigator.userAgent;  //获取浏览器
+            //firefox浏览器对 css disable 属性支持不够友好，需要前端设置 
+            
+			//当浏览器不支持placeholder属性时，调用placeholder函数进行设置（暂时只支持text类型的input） add by heart.cao 20170626
+			if(!('placeholder' in document.createElement('input'))){
+			    $('[placeholder]').each(function(){
+			         if($(this).attr("type") == "text"){
+	                     placeholder($(this));
+			         }
+			    });
+			}            
+        });
+		/**
+		* placeholder处理
+		*/
+		function placeholder(_inputObj){
+		    var _text = _inputObj.attr('placeholder');
+		    var _val = _inputObj.val();
+		    if(_val==''){
+		        _inputObj.val(_text).addClass("phcolor");
+		    }
+		    //清除文本框中原有的提示信息，且输入的字符不为灰色
+		    _inputObj.keydown(function(){
+		    	//modify by eko.zhan at 2017-07-12 10:45
+		    	if ($(this).hasClass('phcolor')){
+		    		$(this).val('');
+		    	}
+		    	//注释掉这一段，在IE8上测试无效，上面一段测试成功
+		        /*if($(this).val()==$(this).attr('placeholder')){
+		            $(this).val('');
+		        }*/
+		        $(this).removeClass("phcolor");
+		    });		    
+		}
+    </script>
+</head>
+<!-- 公共资源文件debug -->
+<head th:fragment="resFragment_debug">
+    <script th:src="@{/resource/js/prototype.extend.js}" charset="utf-8" type="text/javascript"></script>
+    <script th:src="@{/resource/js/jquery.min.js}" charset="utf-8" type="text/javascript"></script>
+    <script th:src="@{/resource/js/DateUtils.js}" charset="utf-8" type="text/javascript"></script>
+    <script th:src="@{/resource/js/jquery.cookie.js}" charset="utf-8" type="text/javascript"></script>
+	<script th:src="@{/resource/js/jquery.extend.js}" charset="utf-8" type="text/javascript"></script>
+</head>
+
+<!-- 公共资源文件压缩 -->
+<head th:fragment="resFragment_all">
+    <script th:src="@{/resource/js/jquery.min.js}" charset="utf-8" type="text/javascript"></script>
+</head>
+
+<!-- 通用 jeasyui 资源文件 -->
+<head th:fragment="jeasyuiFragment">
+	<th:block th:include="script :: jeasyuiFragment_1_5_2"/>
+</head>
+<!-- jeasyui 1.4.5版本 资源文件 -->
+<head th:fragment="jeasyuiFragment_1_4_5">
+    <link th:href="@{/resource/jeasyui/1.4.5/themes/default/easyui.css}" rel='stylesheet' type='text/css'/>
+	<link th:href="@{/resource/jeasyui/1.4.5/themes/extend.css}" rel="stylesheet" type='text/css'>
+    <script th:src="@{/resource/jeasyui/1.4.5/jquery.easyui.min.js}" charset="utf-8" type="text/javascript"></script>
+	<script th:src="@{/resource/jeasyui/easyui-lang-zh_CN.js}" charset="utf-8" type="text/javascript"></script>
+</head>
+<!-- jeasyui 1.5.2版本 资源文件 -->
+<head th:fragment="jeasyuiFragment_1_5_2">
+	<link th:href="@{/resource/jeasyui/1.5.2/themes/default/easyui.css}" rel='stylesheet' type='text/css'/>
+    <link th:href="@{/resource/jeasyui/1.5.2/themes/icon.css}" rel='stylesheet' type='text/css'/>
+    <link th:href="@{/resource/jeasyui/1.5.2/themes/color.css}" rel='stylesheet' type='text/css'/>
+    <link th:href="@{/resource/jeasyui/1.5.2/themes/extend.css}" rel='stylesheet' type='text/css'/>
+    <script th:src="@{/resource/jeasyui/1.5.2/jquery.easyui.min.js}" charset="utf-8" type="text/javascript"></script>
+    <script th:src="@{/resource/jeasyui/easyui-lang-zh_CN.js}" charset="utf-8" type="text/javascript"></script>
+</head>  
+</html>

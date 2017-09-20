@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:security="http://www.springframework.org/schema/security"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:secruity="http://www.springframework.org/schema/security"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+          http://www.springframework.org/schema/security
+          http://www.springframework.org/schema/security/spring-security-3.2.xsd
+          http://www.springframework.org/schema/context
+          http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<bean id="passwordEncoder" class="com.eastrobot.robotdev.security.PasswordEncoder"></bean>
+	
+	<security:http auto-config='true' entry-point-ref="userLoginUrlAuthenticationEntryPoint">
+		<security:intercept-url pattern="/login.do*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/resource/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/**" access="ROLE_USER"/>
+		
+		<!-- 用户登录 -->
+		<security:form-login 
+			default-target-url=""
+			always-use-default-target="false"
+			login-page="/login.do"
+			authentication-failure-handler-ref="authenticationFailureHandlerImpl"
+			authentication-success-handler-ref="authenticationSuccessHandlerImpl"
+			login-processing-url="/spring_security_login" />
+		
+		<!-- 退出登录状态
+			logout-url:退出登录的url
+			logout-success-url：退出登录后的url
+		 -->
+		<security:logout delete-cookies="JSESSIONID" logout-success-url="/login.do" logout-url="/spring_security_logout" />
+		
+		<!-- 
+			session-fixation-protection：防止session fixation(固化) 也称 session固化保护
+		 -->
+		<security:session-management session-fixation-protection="migrateSession">
+			<!-- 
+				concurrency-control:控制session 的并发数量 
+				invalid-session-url 指定使用已经超时的sessionId进行请求需要重定向的页面
+				max-sessions：一次只允许一个账户登录
+				error-if-maximum-exceeded:是否允许用户重复登录，true不允许,false允许但是会挤掉之前登录的session
+				expired-url：指定当用户尝试使用一个由于其再次登录导致session超时的session时所要跳转的页面
+			 -->
+			<security:concurrency-control max-sessions="1" error-if-maximum-exceeded="false" expired-url="/login.do" />
+		</security:session-management>
+	</security:http>
+
+		
+	<!-- 配置认证管理器 
+	-->
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider ref="userAuthenticationProvider">
+		</security:authentication-provider>
+	</security:authentication-manager>
+	
+	<bean id="userAuthenticationProvider" class="com.eastrobot.robotdev.security.UserAuthenticationProvider" />
+	
+	<!-- 认证成功调用  主要实现AuthenticationSuccessHandler这个类的onAuthenticationSuccess方法-->
+	<bean id="authenticationSuccessHandlerImpl" class="com.eastrobot.robotdev.security.AuthenticationSuccessHandlerImpl">
+		<property name="targetUrlParameter" value="redirect" />
+		<property name="defaultSuccessUrl" value="/home.do" />
+	</bean>
+
+	<!-- 认证失败调用 主要实现AuthenticationFailureHandler类的onAuthenticationFailure方法 -->
+	<bean id="authenticationFailureHandlerImpl" class="com.eastrobot.robotdev.security.AuthenticationFailureHandlerImpl">
+		<property name="defaultFailureUrl" value="/login.do" />
+	</bean>
+	
+	<bean id="userLoginUrlAuthenticationEntryPoint" class="com.eastrobot.robotdev.security.UserLoginUrlAuthenticationEntryPoint">
+		<property name="loginFormUrl" value="/login.do" />
+	</bean>
+</beans>
