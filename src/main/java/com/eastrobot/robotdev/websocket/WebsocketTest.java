@@ -2,9 +2,7 @@ package com.eastrobot.robotdev.websocket;
 
 import com.eastrobot.robotdev.controller.LoginController;
 import com.eastrobot.robotdev.entity.ConnectionInfo;
-import com.eastrobot.robotdev.utils.task.ITask;
-import com.eastrobot.robotdev.utils.task.SSHClientTask;
-import com.eastrobot.robotdev.utils.task.TaskPool;
+import com.eastrobot.robotdev.utils.task.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,55 +21,59 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * @Date: Create in 10:58 2017/9/20
  * @Modified By：
  */
-@ServerEndpoint("/websocket/{sessionId}")
-public class Websocket {
+//@ServerEndpoint("/websocket/{sessionId}")
+public class WebsocketTest {
     //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
-    private static Logger logger = LoggerFactory.getLogger(Websocket.class);
-    private static CopyOnWriteArraySet<Websocket> websocketSet = new CopyOnWriteArraySet<Websocket>();
-    private static ConcurrentMap<String,Websocket> websocketMap = new ConcurrentHashMap<String, Websocket>();
+    private static Logger logger = LoggerFactory.getLogger(WebsocketTest.class);
+    private static CopyOnWriteArraySet<WebsocketTest> websocketSet = new CopyOnWriteArraySet<WebsocketTest>();
+    private static ConcurrentMap<String,WebsocketTest> websocketMap = new ConcurrentHashMap<String, WebsocketTest>();
     private Session session;
+    //private String sessionId;
+
+
 
     @OnOpen
-    public void onOpen(@PathParam("sessionId") String sessionId, Session session){
+    public void onOpen (@PathParam("sessionId") String sessionId, Session session){
         this.session = session;
-        //this.id = session.getId();
+        //this.sessionId = session.getId();
         setWebsocketMap(sessionId,this);
         addOnlineCount();
         logger.info("sessionId:" + sessionId);
         logger.info("有新连接加入，当前人数为" + getOnlineCount());
         ConnectionInfo connectionInfo = LoginController.map.get(sessionId);
-        if (connectionInfo != null) {
-            ITask iTask = new SSHClientTask(sessionId,"", this ,connectionInfo);
+        //if (connectionInfo != null) {
+            ITask iTask = new TestTask("",this);
             TaskPool.getInstance().addTask(iTask,sessionId);
-        }
+        //}
 
     }
 
     @OnClose
     public void onClose(@PathParam("sessionId") String sessionId){
-        logger.info("主动关闭.....");
         shutdowm(sessionId);
     }
 
     @OnMessage
     public void onMessage(@PathParam("sessionId") String sessionId, String message, Session session){
-        logger.info("收到消息： " + message);
-        SSHClientTask clientTask = (SSHClientTask) TaskPool.getInstance().getThreadManager().get(sessionId);
+        logger.info(sessionId + "收到消息： " + message);
+        TestTask iTask =   (TestTask)TaskPool.getInstance().getThreadManager().get(sessionId);
         //System.out.println("clientTask" + clientTask.getId());
-        clientTask.setMessage(message);
+        iTask.setMessage(message);
+        //sendMessage(message);
     }
 
     @OnError
     public void onError(@PathParam("sessionId") String sessionId, Session session, Throwable error){
-        logger.error("发生错误" + sessionId);
+        logger.error("发生错误");
         shutdowm(sessionId);
         error.printStackTrace();
     }
 
 
-    public void sendMessage(String message){
+    public synchronized  void sendMessage(String message){
         try {
+            System.out.println(this.session + "message:" + message);
             if (StringUtils.isNoneBlank(message)) {
                 this.session.getBasicRemote().sendText(message);
             }
@@ -91,30 +93,32 @@ public class Websocket {
 
     public void shutdowm(String sessionId){
         logger.info("shutdowm ......");
-        getWebsocketMap().remove(sessionId);
+        getWebsocketMap().remove(this.session.getId());
         TaskPool.getInstance().shutDown(sessionId);
         subOnlineCount();
 
     }
 
-    public void setWebsocketMap(String key, Websocket websocket){
+    public void setWebsocketMap(String key, WebsocketTest websocket){
         websocketMap.put(key,websocket);
     }
 
-    public ConcurrentMap<String,Websocket> getWebsocketMap(){
+    public ConcurrentMap<String,WebsocketTest> getWebsocketMap(){
         return websocketMap;
     }
 
     public synchronized void addOnlineCount(){
-        Websocket.onlineCount++;
+        WebsocketTest.onlineCount++;
     }
 
     public synchronized void subOnlineCount(){
-        Websocket.onlineCount--;
+        WebsocketTest.onlineCount--;
     }
 
     public synchronized int getOnlineCount(){
         return onlineCount;
     }
+
+
 
 }

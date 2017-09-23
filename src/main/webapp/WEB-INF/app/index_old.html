@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <th:block th:include="script :: headerFragment"  th:with="title='模拟SSH登录以及执行远程脚本'"/>
+    <th:block th:include="script :: jeasyuiFragment" />
+</head>
+
+<body class="easyui-layout">
+<!--<div data-options="region:'north',title:'North Title',split:true" style="height:100px;"></div>-->
+    <div style="height: 30px;background-color: #e0ecff">
+        <div class="easyui-panel" style="">
+            <a href="#" class="easyui-linkbutton" data-options="plain:true">Home</a>
+            <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-edit'">Edit</a>
+            <a href="#" class="easyui-menubutton" data-options="menu:'#mm2',iconCls:'icon-help'">Help</a>
+            <a href="#" class="easyui-menubutton" data-options="menu:'#mm3'">About</a>
+        </div>
+        <div id="mm1" style="width:150px;">
+            <div data-options="iconCls:'icon-undo'">Undo</div>
+            <div data-options="iconCls:'icon-redo'">Redo</div>
+            <div class="menu-sep"></div>
+            <div>Cut</div>
+            <div>Copy</div>
+            <div>Paste</div>
+            <div class="menu-sep"></div>
+            <div>
+                <span>Toolbar</span>
+                <div>
+                    <div>Address</div>
+                    <div>Link</div>
+                    <div>Navigation Toolbar</div>
+                    <div>Bookmark Toolbar</div>
+                    <div class="menu-sep"></div>
+                    <div>New Toolbar...</div>
+                </div>
+            </div>
+            <div data-options="iconCls:'icon-remove'">Delete</div>
+            <div>Select All</div>
+        </div>
+        <div id="mm2" style="width:100px;">
+            <div>Help</div>
+            <div>Update</div>
+            <div>About</div>
+        </div>
+        <div id="mm3" class="menu-content" style="background:#f0f0f0;padding:10px;text-align:left">
+            <img src="http://www.jeasyui.com/images/logo1.png" style="width:150px;height:50px">
+            <p style="font-size:14px;color:#444;">Try jQuery EasyUI to build your modern, interactive, javascript applications.</p>
+        </div>
+    </div>
+    <div data-options="region:'center',title:'',iconCls:'icon-ok'" class="easyui-layout" style="margin-top:30px;">
+   <div data-options="region:'west',title:'目录树',split:true" style="width:200px;">
+   		<ul class="easyui-tree" data-options="url:'resource/asr/tree_data.json',method:'get',animate:true"></ul>
+   </div>
+
+   <div data-options="region:'center',title:'',iconCls:'icon-ok'">
+       <div id="p" class="easyui-panel" data-options="fit:true">
+           <div id="index_tabs" class="easyui-tabs" data-options="fit:true">
+
+           </div>
+       </div>
+   </div>
+    </div>
+</body>
+<script type="text/javascript">
+
+	function add_tab(id,tab_name,url){
+        var height = document.body.clientHeight-42;
+        var content = '<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:98%;height:'+height+'px;"></iframe>';
+		if ($('#index_tabs').tabs('exists', tab_name)){
+			$('#index_tabs').tabs('select', tab_name);
+		} else {
+			$('#index_tabs').tabs('add',{
+				id: id,
+				title: tab_name,
+				content:content,
+				closable:true
+			});
+		}
+	}
+
+    $(function(){
+        $('.easyui-tree').tree({
+            onClick: function(node){
+                var id = node.id;
+                var name = node.text;
+                var url = node.attributes.url;
+                add_tab(id,name,url);
+            }
+        });
+    });
+</script>
+</html>

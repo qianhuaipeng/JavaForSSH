@@ -1,0 +1,32 @@
+[{
+	"id":1,
+	"text":"东方航空",
+	"children":[{
+		"id":11,
+		"text":"172.16.1.147",
+		"attributes":{
+			"hostname":"172.16.1.147",
+			"port":12598,
+			"username":"u_dhwx",
+			"password":"u_dhwx123"
+		}
+	},{
+		"id":12,
+		"text":"172.16.1.147",
+		"attributes":{
+			"hostname":"172.16.1.147",
+			"port":12598,
+			"username":"u_dhwx",
+			"password":"u_dhwx123"
+		}
+	},{
+		"id":13,
+		"text":"172.16.1.147",
+		"attributes":{
+			"hostname":"172.16.1.147",
+			"port":12598,
+			"username":"u_dhwx",
+			"password":"u_dhwx123"
+		}
+	}]
+}]

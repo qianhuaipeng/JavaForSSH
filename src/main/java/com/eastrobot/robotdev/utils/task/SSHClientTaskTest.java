@@ -4,7 +4,7 @@ import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
 import com.eastrobot.robotdev.entity.ConnectionInfo;
-import com.eastrobot.robotdev.websocket.Websocket;
+import com.eastrobot.robotdev.websocket.WebsocketTest;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +24,11 @@ import java.util.concurrent.TimeUnit;
  * @Date: Create in 13:52 2017/9/20
  * @Modified By：
  */
-public class SSHClientTask implements ITask {
+public class SSHClientTaskTest implements ITask {
 
     private String id;
     private String message;
-    private Websocket websocket;
+    private WebsocketTest websocketTest;
     private Connection connection;
     private Session session;
     private BufferedReader stdout;
@@ -37,23 +37,23 @@ public class SSHClientTask implements ITask {
     private ConnectionInfo connectionInfo;
     private boolean flag = true;
 
-    private static final Logger logger = LoggerFactory.getLogger(SSHClientTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(SSHClientTaskTest.class);
     private ExecutorService service = Executors.newFixedThreadPool(3);
     private Scanner scanner = new Scanner(System.in);
 
 
-    public SSHClientTask(String id, String message, Websocket websocket, ConnectionInfo connectionInfo) {
+    public SSHClientTaskTest(String id, String message, WebsocketTest websocketTest, ConnectionInfo connectionInfo) {
         this.id = id;
         this.message = message;
-        this.websocket = websocket;
+        this.websocketTest = websocketTest;
         this.connectionInfo = connectionInfo;
     }
 
     public void initSession(String hostName, int port, String userName, String passwd) throws IOException {
-        connection = new Connection(connectionInfo.getHostname(), connectionInfo.getPort());
+        connection = new Connection(hostName, port);
         connection.connect();
 
-        boolean authenticateWithPassword = connection.authenticateWithPassword(connectionInfo.getUsername(), connectionInfo.getPassword());
+        boolean authenticateWithPassword = connection.authenticateWithPassword(userName, passwd);
         if (!authenticateWithPassword) {
             flag = false;
             connection.close();
@@ -80,8 +80,8 @@ public class SSHClientTask implements ITask {
                 execCommand();
                 String line;
                 while ((line = stdout.readLine()) != null) {
-                   // System.out.println("" + line);
-                    websocket.sendMessage(line);
+                    System.out.println("" + line);
+                    websocketTest.sendMessage(line);
                 }
                 //execCommand();
                 Thread.sleep(2000);
@@ -119,10 +119,6 @@ public class SSHClientTask implements ITask {
                 while (true) {
                     try {
                         TimeUnit.SECONDS.sleep(1);
-                        System.out.println("submit  ...");
-                        if (flag){
-                            service.shutdown();
-                        }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -145,7 +141,6 @@ public class SSHClientTask implements ITask {
         TaskPool.getInstance().getThreadManager().remove(id);
         service.shutdown();
         close();
-        logger.info(Thread.currentThread().getName()+" :"+ id + "  is shutdowm....");
     }
 
     public void close() {
@@ -173,12 +168,12 @@ public class SSHClientTask implements ITask {
         this.message = message;
     }
 
-    public Websocket getWebsocket() {
-        return websocket;
+    public WebsocketTest getWebsocket() {
+        return websocketTest;
     }
 
-    public void setWebsocket(Websocket websocket) {
-        this.websocket = websocket;
+    public void setWebsocket(WebsocketTest websocketTest) {
+        this.websocketTest = websocketTest;
     }
 
 

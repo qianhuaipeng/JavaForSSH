@@ -6,49 +6,149 @@
     <th:block th:include="script :: jeasyuiFragment" />
 </head>
 
-<body class="easyui-layout">
-   <div data-options="region:'west',title:'目录树',split:true" style="width:200px;">
-   		<ul class="easyui-tree" data-options="url:'resource/asr/tree_data.json',method:'get',animate:true"></ul>
-   </div>
+<body>
+    <div>
+        <div class="easyui-panel" style="">
+            <a href="#" onclick="javascript:$('#con-dialog').dialog('open')" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-add'">Add</a>
+            <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-edit'">Edit</a>
+            <a href="#" class="easyui-menubutton" data-options="menu:'#mm2',iconCls:'icon-help'">Help</a>
+            <a href="#" class="easyui-menubutton" data-options="menu:'#mm3'">About</a>
+        </div>
+        <div id="mm1" style="width:150px;">
+            <div data-options="iconCls:'icon-undo'">Undo</div>
+            <div data-options="iconCls:'icon-redo'">Redo</div>
+            <div class="menu-sep"></div>
+            <div>Cut</div>
+            <div>Copy</div>
+            <div>Paste</div>
+            <div class="menu-sep"></div>
+            <div>
+                <span>Toolbar</span>
+                <div>
+                    <div>Address</div>
+                    <div>Link</div>
+                    <div>Navigation Toolbar</div>
+                    <div>Bookmark Toolbar</div>
+                    <div class="menu-sep"></div>
+                    <div>New Toolbar...</div>
+                </div>
+            </div>
+            <div data-options="iconCls:'icon-remove'">Delete</div>
+            <div>Select All</div>
+        </div>
+        <div id="mm2" style="width:100px;">
+            <div>Help</div>
+            <div>Update</div>
+            <div>About</div>
+        </div>
+        <div id="mm3" class="menu-content" style="background:#f0f0f0;padding:10px;text-align:left">
+            <img src="http://www.jeasyui.com/images/logo1.png" style="width:150px;height:50px">
+            <p style="font-size:14px;color:#444;">Try jQuery EasyUI to build your modern, interactive, javascript applications.</p>
+        </div>
+    </div>
 
-   <div data-options="region:'center',title:'',iconCls:'icon-ok'">
-       <div id="p" class="easyui-panel" data-options="fit:true">
-           <div id="index_tabs" class="easyui-tabs" data-options="fit:true">
+    <div data-options="fit:true" class="easyui-layout" style="">
+        <div data-options="region:'west',title:'目录树',split:true" style="width:200px;">
+            <ul class="easyui-tree" data-options="url:'resource/app/tree_data.json',method:'get',animate:true"></ul>
+        </div>
 
-           </div>
-       </div>
-   </div>
+        <div data-options="region:'center',title:'',iconCls:'icon-ok'">
+            <div id="p" class="easyui-panel" data-options="fit:true">
+                <div id="index_tabs" class="easyui-tabs" data-options="fit:true">
 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="easyui-dialog" title="连接" style="width:400px" id="con-dialog" closed="true" modal="true">
+        <div style="padding:10px 60px 20px 60px">
+            <form id="connection_fm" method="post">
+                <table cellpadding="5">
+                    <tr>
+                        <td>主机名(H):</td>
+                        <td><input class="easyui-textbox" type="text" id="hostname" name="hostname" value="172.16.1.147" data-options="required:true"></input></td>
+                    </tr>
+                    <tr>
+                        <td>端口(O):</td>
+                        <td><input class="easyui-textbox" type="text" name="port" value="12598" data-options="required:true"></input></td>
+                    </tr>
+                    <tr>
+                        <td>用户名(U):</td>
+                        <td><input class="easyui-textbox" type="text" name="username" value="u_dhwx" data-options="required:true"></input></td>
+                    </tr>
+                    <tr>
+                        <td>密码(P):</td>
+                        <td><input class="easyui-textbox" name="password" value="u_dhwx123" data-options="required:true"></input></td>
+                    </tr>
+                </table>
+            </form>
+            <div style="text-align:center;padding:5px">
+                <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()">登录</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" onclick="javascript:$('#connection_fm').form('clear')">Clear</a>
+            </div>
+        </div>
+    </div>
 </body>
-<script type="text/javascript">
+<script>
+    
+    function submitForm() {
+        $('#connection_fm').form('submit', {
+            url: "login/authenticate.do",
+            onSubmit: function () {        //表单提交前的回调函数
+                var isValid = $(this).form('validate');//验证表单中的一些控件的值是否填写正确，比如某些文本框中的内容必须是数字
+                if (!isValid) {
+                }
+                return isValid; // 如果验证不通过，返回false终止表单提交
+            },
+            success: function (data) {  //表单提交成功后的回调函数，里面参数data是我们调用方法的返回值。
+                var data = eval('(' + data + ')');
+                //alert(data);
+                if (data.success) {
+                    $.messager.show({
+                        title: '提示消息',
+                        msg: '登录成功',
+                        showType: 'show',
+                        timeout: 200,
+                        style: {
+                            right: '',
+                            bottom: ''
+                        }
+                    });
+                    var hostname = $('#hostname').val();
+                    $("#connection_fm").form('clear');
+                    $('#con-dialog').dialog('close');//关闭窗口
+                    var sessionId = data.sessionId;
+                    console.info("sessionId: " + sessionId);
+                    var location_ = "login/ssh.do?sessionId="+ sessionId;
 
-	function add_tab(id,tab_name,url){
-        var height = document.body.clientHeight-42;
-        var content = '<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:98%;height:'+height+'px;"></iframe>';
-		if ($('#index_tabs').tabs('exists', tab_name)){
-			$('#index_tabs').tabs('select', tab_name);
-		} else {
-			$('#index_tabs').tabs('add',{
-				id: id,
-				title: tab_name,
-				content:content,
-				closable:true
-			});
-		}
-	}
-
-    $(function(){
-        $('.easyui-tree').tree({
-            onClick: function(node){
-                var id = node.id;
-                var name = node.text;
-                var url = node.attributes.url;
-                add_tab(id,name,url);
+                    add_tab(sessionId,hostname,location_);
+                } else {
+                    $.messager.alert('提示信息', '添加失败！', 'warning');
+                }
+            },
+            error: function () {
+                $.messager.alert('提示信息', '登录失败！', 'warning');
             }
         });
+    }
 
-        add_tab(1,"1","index.jsp");
-        add_tab(1,"2","index.jsp");
-    });
+
+    function add_tab(id,tab_name,url){
+        var height = document.body.clientHeight-42;
+        var content = '<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:98%;height:'+height+'px;"></iframe>';
+        if ($('#index_tabs').tabs('exists', tab_name)){
+            $('#index_tabs').tabs('select', tab_name);
+        } else {
+            $('#index_tabs').tabs('add',{
+                id: id,
+                title: tab_name,
+                content:content,
+                closable:true
+            });
+        }
+    }
+
+
 </script>
 </html>

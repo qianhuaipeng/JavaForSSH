@@ -32,6 +32,7 @@ public class TaskPool {
     
 	public void shutDown(String sessionId) {
 		try {
+			System.out.println("taskpoll ==>>> sessionId" + sessionId + " shutdowm.......");
 			if (getThreadManager().containsKey(sessionId)) {
 				ITask qrr = getThreadManager().get(sessionId);
 				qrr.threadShutDown();
